@@ -54,5 +54,33 @@ while running:
                 current_res_idx = 5
                 change_resolution(current_res_idx)
 
-# Set up the clock for managing the frame rate
-clock = pygame.time.Clock()
+# rendering in Virtual canvas
+    virtual_screen.fill((30, 30, 40))
+
+    # Text of interface 
+    text_info = font.render(
+        f"Current resolution: {current_w}x{current_h}", True, (255, 255, 255)
+    )
+    text_hint = font.render(
+        "press 1 (800, 600), 2 (1024, 768), 3 (1280, 720), 4 (1366, 768), 5 (1600, 900), or 6 (1920, 1080)",
+        True,
+        (200, 200, 200),
+    )
+
+    virtual_screen.blit(text_info, (50, 50))
+    virtual_screen.blit(text_hint, (50, 120))
+
+    # rendering of testing object
+    pygame.draw.rect(virtual_screen, (230, 80, 80), (50, 200, 200, 200))
+
+    # Scaling to the real window
+    scaled_surface = pygame.transform.scale(
+        virtual_screen, (current_w, current_h)
+    )
+    screen.blit(scaled_surface, (0, 0))
+
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
+sys.exit()
