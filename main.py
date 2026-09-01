@@ -1,86 +1,53 @@
 import pygame
+import sys
+from settings import VIRTUAL_WIDTH, VIRTUAL_HEIGHT, RESOLUTIONS
+from ui import SettingsMenu
 
-pygame.init()
+def main():
+    pygame.init()
+    pygame.mixer.init()
 
-# Set up the display
-RESOLUTIONS = [(800, 600), (1024, 768), (1280, 720), (1366, 768), (1600, 900), (1920, 1080)]
-current_res_idx = 0
-pygame.display.set_caption("Tetris Game")
+    # Create a virtual canvas of fixed size
+    virtual_surface = pygame.Surface((VIRTUAL_WIDTH, VIRTUAL_HEIGHT))
 
-VIRTUAL_WIDTH = 800
-VIRTUAL_HEIGHT = 600
+    menu = SettingsMenu()
+    current_res = RESOLUTIONS[menu.res_index]
+    flags = pygame.FULLSCREEN if menu.is_fullscreen else 0
+    screen = pygame.display.set_mode(current_res, flags)
+    pygame.display.set_caption("Tetris Arcade - Settings")
 
-virtual_surface = pygame.Surface((VIRTUAL_WIDTH, VIRTUAL_HEIGHT))
+    clock = pygame.time.Clock()
 
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
-current_w, current_h = RESOLUTIONS[current_res_idx]
-screen = pygame.display.set_mode((current_w, current_h))
-pygame.display.set_caption("Resolution setting")
+            # Pass keyboard events to the menu
+            menu.handle_input(event)
 
-clock = pygame.time.Clock()
-font = pygame.font.SysFont(None, 40)
-running = True
+            # Checking for screen mode or resolution changes
+            new_res = RESOLUTIONS[menu.res_index]
+            new_flags = pygame.FULLSCREEN if menu.is_fullscreen else 0
 
-def change_resolution(index):
-    global screen, current_w, current_h
-    current_w, current_h = RESOLUTIONS[index]
-    # recreate window with new resolution
-    screen = pygame.display.set_mode((current_w, current_h))
+            if new_res != current_res or new_flags != flags:
+                current_res = new_res
+                flags = new_flags
+                screen = pygame.display.set_mode(current_res, flags)
 
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+        # 1. Render the menu onto a virtual canvas.
+        menu.draw(virtual_surface)
 
-        if event.type == pygame.KEYDOWN:
-            # you can set up resolution by using 1, 2, 3, 4, 5, 6
-            if event.key == pygame.K_1:
-                current_res_idx = 0
-                change_resolution(current_res_idx)
-            elif event.key == pygame.K_2:
-                current_res_idx = 1
-                change_resolution(current_res_idx)
-            elif event.key == pygame.K_3:
-                current_res_idx = 2
-                change_resolution(current_res_idx)
-            elif event.key == pygame.K_4:
-                current_res_idx = 3
-                change_resolution(current_res_idx)
-            elif event.key == pygame.K_5:
-                current_res_idx = 4
-                change_resolution(current_res_idx)
-            elif event.key == pygame.K_6:
-                current_res_idx = 5
-                change_resolution(current_res_idx)
+        # 2. Scale the image to fit the actual window/screen.
+        scaled_surface = pygame.transform.smoothscale(virtual_surface, current_res)
+        screen.blit(scaled_surface, (0, 0))
 
-# rendering in Virtual canvas
-    virtual_screen.fill((30, 30, 40))
+        pygame.display.flip()
+        clock.tick(60)
 
-    # Text of interface 
-    text_info = font.render(
-        f"Current resolution: {current_w}x{current_h}", True, (255, 255, 255)
-    )
-    text_hint = font.render(
-        "press 1 (800, 600), 2 (1024, 768), 3 (1280, 720), 4 (1366, 768), 5 (1600, 900), or 6 (1920, 1080)",
-        True,
-        (200, 200, 200),
-    )
+    pygame.quit()
+    sys.exit()
 
-    virtual_screen.blit(text_info, (50, 50))
-    virtual_screen.blit(text_hint, (50, 120))
-
-    # rendering of testing object
-    pygame.draw.rect(virtual_screen, (230, 80, 80), (50, 200, 200, 200))
-
-    # Scaling to the real window
-    scaled_surface = pygame.transform.scale(
-        virtual_screen, (current_w, current_h)
-    )
-    screen.blit(scaled_surface, (0, 0))
-
-    pygame.display.flip()
-    clock.tick(60)
-
-pygame.quit()
-sys.exit()
+if __name__ == "__main__":
+    main()
