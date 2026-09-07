@@ -53,7 +53,7 @@ class SettingsMenu:
 
         # 1. Resolution selection
         res_w, res_h = RESOLUTIONS[self.res_index]
-        res_str = f"Rsolution:  < {res_w} x {res_h} >"
+        res_str = f"Resolution:  < {res_w} x {res_h} >"
         color0 = COLOR_ACCENT if self.selected_option == 0 else COLOR_TEXT
         txt0 = self.font.render(res_str, True, color0)
         surface.blit(txt0, (100, 140))
